@@ -2,6 +2,7 @@
 Title: Solarized Colorscheme for Vim
 Description: Precision colors for machines and people
 Author: Ethan Schoonover
+Contributor: Hao Hu
 Colors: light yellow
 Created:  2011 Mar 15
 Modified: 2016 Apr 22
@@ -10,6 +11,13 @@ Modified: 2016 Apr 22
 
 Solarized Colorscheme for Vim
 =============================
+
+This is a modified version of the original plugin that enables 24 bit true color
+for terminal Vim instances compiled with the termtruecolor feature and the
+option guicolors enabled.
+
+Note that you will need to use a 24 bit color enabled terminal to take advantage
+of this feature.
 
 Developed by Ethan Schoonover <es@ethanschoonover.com>
 
