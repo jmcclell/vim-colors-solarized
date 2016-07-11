@@ -4,63 +4,119 @@
 "           (see this url for latest release & screenshots)
 " License:  OSI approved MIT license (see end of this file)
 " Created:  In the middle of the night
-" Modified: 2011 May 05
 "
 " Usage "{{{
 "
 " ---------------------------------------------------------------------
 " ABOUT:
 " ---------------------------------------------------------------------
-" Solarized is a carefully designed selective contrast colorscheme with dual
-" light and dark modes that runs in both GUI, 256 and 16 color modes.
+" Solarized is a carefully designed, selective contrast colorscheme with dual
+" light and dark modes that transition beautifully between one another.
 "
-" See the homepage above for screenshots and details.
+" Solarized looks great in either 24bit TrueColor enabled terminals,  as well
+" as being designed for 8 or 16 bit terminal compatibilty provided the ANSI
+" color palette is updated to the appropriate Solarized color for each of the
+" 16 possible values.
+" 
+" Unfortunately, if TrueColor isn't available in your terminal (both your
+" $TERM_PROGRAM and $TERM) you will need to use the fallback method of setting
+" your ANSI colors at the terminal program's level in order to achieve an
+" accurate representation of the color scheme. 
+"
+" To understand why, you must understand that there are two ways to define
+" color: 
+"     1. By directly supplying the RGB value
+"     2. By providing the numeric ID or name of a pre-defineD ANSI color slot
+"
+" There is no translation to be done in the former case. You tell it exactly
+" what color you want and it uses that color. In the latter case, you tell it
+" which of the pre-defied ANSI colors you wish to use either by specifying a
+" name such as  "blue", or a number from 30-37 or 90-97 for foreground colors
+" and 40-47 or 100-107 for backgrounds. The color that your terminal actually
+" dispalys will depend on what RGB value you have pre-configured it to use for
+" these named color slots. That is, your "blue" could actually be red if you
+" configure your terminal that way.
+"
+" Since using RGB values directly is only supported with TrueColor enabled
+" terminals, we take advantage of the ability to override the pre-defined ANSI
+" color slots as a fallback method for 8/16bit color supported terminals. For
+" 8-bit support, however, you must also enable the "display bold text in
+" bright colors" option in your outer terminal program! This is because we do
+" not have the full 16 color slots available in 8-bit mode, we only have the
+" first 8 along with the ability to make them bold. So, as a workaround, many
+" terminals offer the ability to replace bold as a flag to indicate "show the
+" bright version of this color" which lets us have all 16 colors we need, but
+" without the ability to use bold text (easily).
+"
+" There is a 3rd option similar to the second whereby terminals with 256 color
+" support have an extended range of pre-defied colors. However, these colors
+" do not perfectly match up to the solarized theme and there is no way to
+" override them. This color scheme used to support them, but I've removed such
+" support because 1. it sucks and 2. TrueColor is available in Vim as of 7.4
+" and with most modern terminals. The original version of this file still has
+" 256 color support in the base Solarized repo.
+"
+" See the homepage above for screenshots and more details.
+"
+" NOTE: There is an issue with TrueColor when running under tmux which causes
+" the background to be partially transparent (noticeable when switching
+" between dark and light themes). This can be fixed by adding 'set t_ut=""' to
+" your .vimrc file.
 "
 " ---------------------------------------------------------------------
 " OPTIONS:
 " ---------------------------------------------------------------------
 " See the "solarized.txt" help file included with this colorscheme (in the 
 " "doc" subdirectory) for information on options, usage, the Toggle Background 
-" function and more. If you have already installed Solarized, this is available 
+" function and more. If you have already installed Solarized, this is available
 " from the Solarized menu and command line as ":help solarized"
 "
 " ---------------------------------------------------------------------
 " INSTALLATION:
 " ---------------------------------------------------------------------
-" Two options for installation: manual or pathogen
+" Two options for installation: manual or using your favorite plugin manager
 "
 " MANUAL INSTALLATION OPTION:
 " ---------------------------------------------------------------------
 "
 " 1.  Download the solarized distribution (available on the homepage above)
-"     and unarchive the file.
-" 2.  Move `solarized.vim` to your `.vim/colors` directory.
-" 3.  Move each of the files in each subdirectories to the corresponding .vim
-"     subdirectory (e.g. autoload/togglebg.vim goes into your .vim/autoload 
-"     directory as .vim/autoload/togglebg.vim).
+"     and unarchive the file or clone this reposiory directly via git
+" 2.  Move or symlink `solarized.vim` into your `.vim/colors` directory.
+" 3.  Move or symlink each of the files in each of this project's subdirectories
+"     to the corresponding .vim subdirectory (e.g. autoload/togglebg.vim goes
+"     into your .vim/autoload directory as .vim/autoload/togglebg.vim).
 "
-" RECOMMENDED PATHOGEN INSTALLATION OPTION:
+" RECOMMENDED PLUGIN MANAGER INSTALLATION OPTION:
 " ---------------------------------------------------------------------
 "
-" 1.  Download and install Tim Pope's Pathogen from:
-"     https://github.com/tpope/vim-pathogen
+" 1. Make sure you have a Plugin manager installed 
+"     - [vim-plug](https://github.com/junegunn/vim-plug)
+"     - [Vundle](https://github.com/VundleVim/Vundle.vim)
+"     - etc.
 "
-" 2.  Next, move or clone the `vim-colors-solarized` directory so that it is
-"     a subdirectory of the `.vim/bundle` directory.
+" 2. Add the plugiun definition to your `.vimrc` configuration, as described in
+"    your plugin manager's documentation.
 "
-"     a. **clone with git:**
+"    ```
+"    " file ~/.vimrc
+"    Plugin 'altercation/vim-colors-solarized'
+"    ```
+"    **Note:** If you are using a Github fork, replace `altercation` with the
+"    github username that owns the fork. You may also elect to provide a full
+"    git uri, including branch/refspec.
 "
-"       $ cd ~/.vim/bundle
-"       $ git clone git://github.com/altercation/vim-colors-solarized.git
+" 3. Run your Plugin Manager's installation routine
+"    **vim-plug**
+"    `: PlugInstall`
+"    **vundle**
+"    `: PluginInstall`
 "
-"     b. **or move manually into the pathogen bundle directory:**
-"         In the parent directory of vim-colors-solarized:
+" 4. Configure the Solarized plugin
 "
-"         $ mv vim-colors-solarized ~/.vim/bundle/
 "
-" MODIFY VIMRC:
+" CONFIGURATION:
 "
-" After either Option 1 or Option 2 above, put the following two lines in your
+" After insalling the plugin, put the following two lines in your
 " .vimrc:
 "
 "     syntax enable
@@ -92,27 +148,42 @@
 " ---------------------------------------------------------------------
 " Download palettes and files from: http://ethanschoonover.com/solarized
 "
-" L\*a\*b values are canonical (White D65, Reference D50), other values are
-" matched in sRGB space.
+" The L*aB values are the canonical source values (White D65, Reference D50),
+" while all other values are matched in sRGB space.
 "
-" SOLARIZED HEX     16/8 TERMCOL  XTERM/HEX   L*A*B      sRGB        HSB
-" --------- ------- ---- -------  ----------- ---------- ----------- -----------
-" base03    #002b36  8/4 brblack  234 #1c1c1c 15 -12 -12   0  43  54 193 100  21
-" base02    #073642  0/4 black    235 #262626 20 -12 -12   7  54  66 192  90  26
-" base01    #586e75 10/7 brgreen  240 #4e4e4e 45 -07 -07  88 110 117 194  25  46
-" base00    #657b83 11/7 bryellow 241 #585858 50 -07 -07 101 123 131 195  23  51
-" base0     #839496 12/6 brblue   244 #808080 60 -06 -03 131 148 150 186  13  59
-" base1     #93a1a1 14/4 brcyan   245 #8a8a8a 65 -05 -02 147 161 161 180   9  63
-" base2     #eee8d5  7/7 white    254 #d7d7af 92 -00  10 238 232 213  44  11  93
-" base3     #fdf6e3 15/7 brwhite  230 #ffffd7 97  00  10 253 246 227  44  10  99
-" yellow    #b58900  3/3 yellow   136 #af8700 60  10  65 181 137   0  45 100  71
-" orange    #cb4b16  9/3 brred    166 #d75f00 50  50  55 203  75  22  18  89  80
-" red       #dc322f  1/1 red      160 #d70000 50  65  45 220  50  47   1  79  86
-" magenta   #d33682  5/5 magenta  125 #af005f 50  65 -05 211  54 130 331  74  83
-" violet    #6c71c4 13/5 brmagenta 61 #5f5faf 50  15 -45 108 113 196 237  45  77
-" blue      #268bd2  4/4 blue      33 #0087ff 55 -10 -45  38 139 210 205  82  82
-" cyan      #2aa198  6/6 cyan      37 #00afaf 60 -35 -05  42 161 152 175  74  63
-" green     #859900  2/2 green     64 #5f8700 60 -20  65 133 153   0  68 100  60
+" The chart below shows the source L*a*b* values, the nearest matching RGB Hex
+" value, an adjusted RGB Hex value, the 16 and 8 bit ANSI color codes we
+" have adopted for each Solarized color, as well as the name of the terminal
+" color.
+"
+" The adjusted hex values are obtained by tweaking the hues and the
+" monotone a*b* values, within a small range, in order  to achieve the most
+" pleasing combination of colors overall and reflect the official colors on
+" the solarized site.
+"
+" As such, it is the adjusted RGB values that you should be using if you plan 
+" to map your 8 or 16 bit terminal scheme to the Solarized values.
+"
+"        =======================================================
+"        TERMCOL    16/8  SOLAR    ADJUST   NEAREST  SRC L*A*B*      
+"        ---------  ----  -------  -------  -------  -----------
+"        brblack     8/4  base03   #002b36  #002b36   15 -12 -12 
+"        black       0/4  base02   #073642  #003641   20 -12 -12 
+"        brgreen    10/7  base01   #586e75  #566e76   45 -07 -07 
+"        bryellow   11/7  base00   #657b83  #637b82   50 -07 -07 
+"        brblue     12/6  base0    #839496  #829496   60 -06 -03 
+"        brcyan     14/4  base1    #93a1a1  #92a1a1   65 -05 -02 
+"        white       7/7  base2    #eee8d5  #f0e7d5   92 -00  10 
+"        brwhite    15/7  base3    #fdf6e3  #fff6e3   97  00  10 
+"        yellow      3/3  yellow   #b58900  #bb8801   60  10  65 
+"        brred       9/3  orange   #cb4b16  #c44b15   50  50  55 
+"        red         1/1  red      #dc322f  #e0332e   50  65  45 
+"        magenta     5/5  magenta  #d33682  #d43982   50  65 -05 
+"        brmagenta  13/5  violet   #6c71c4  #5c73c4   50  15 -45 
+"        blue        4/4  blue     #268bd2  #008dd1   55 -10 -45 
+"        cyan        6/6  cyan     #2aa198  #1fa198   60 -35 -05 
+"        green       2/2  green    #859900  #8d9800   60 -20  65
+"        ========================================================
 "
 " ---------------------------------------------------------------------
 " COLORSCHEME HACKING
@@ -127,7 +198,6 @@
 " Useful links for developing colorschemes:
 " http://www.vim.org/scripts/script.php?script_id=2937
 " http://vimcasts.org/episodes/creating-colorschemes-for-vim/
-" http://www.frexx.de/xterm-256-notes/"
 "
 " }}}
 " Environment Specific Overrides "{{{
@@ -211,7 +281,6 @@ else
     let s:solarized_termtrans_default = 0
 endif
 call s:SetOption("termtrans",s:solarized_termtrans_default)
-call s:SetOption("degrade",0)
 call s:SetOption("bold",1)
 call s:SetOption("underline",1)
 call s:SetOption("italic",1) " note that we need to override this later if the terminal doesn't support
@@ -232,15 +301,9 @@ endif
 let colors_name = "solarized"
 
 "}}}
-" GUI & CSApprox hexadecimal palettes"{{{
+" TrueColor Palette for GUI and supported Terminals
 " ---------------------------------------------------------------------
-"
-" Set both gui and terminal color values in separate conditional statements
-" Due to possibility that CSApprox is running (though I suppose we could just
-" leave the hex values out entirely in that case and include only cterm colors)
-" We also check to see if user has set solarized (force use of the
-" neutral gray monotone palette component)
-if ( (has("gui_running") || (exists("&tgc") && &tgc )) && g:solarized_degrade == 0)
+if ( has("gui_running") || ( exists("&tgc") && &tgc ) )
     let s:vmode       = "gui"
     let s:base03      = "#002b36"
     let s:base02      = "#073642"
@@ -257,30 +320,8 @@ if ( (has("gui_running") || (exists("&tgc") && &tgc )) && g:solarized_degrade ==
     let s:violet      = "#6c71c4"
     let s:blue        = "#268bd2"
     let s:cyan        = "#2aa198"
-    "let s:green       = "#859900" "original
-    let s:green       = "#719e07" "experimental
-elseif (has("gui_running") && g:solarized_degrade == 1)
-    " These colors are identical to the 256 color mode. They may be viewed
-    " while in gui mode via "let g:solarized_degrade=1", though this is not
-    " recommened and is for testing only.
-    let s:vmode       = "gui"
-    let s:base03      = "#1c1c1c"
-    let s:base02      = "#262626"
-    let s:base01      = "#4e4e4e"
-    let s:base00      = "#585858"
-    let s:base0       = "#808080"
-    let s:base1       = "#8a8a8a"
-    let s:base2       = "#d7d7af"
-    let s:base3       = "#ffffd7"
-    let s:yellow      = "#af8700"
-    let s:orange      = "#d75f00"
-    let s:red         = "#af0000"
-    let s:magenta     = "#af005f"
-    let s:violet      = "#5f5faf"
-    let s:blue        = "#0087ff"
-    let s:cyan        = "#00afaf"
-    let s:green       = "#5f8700"
-elseif g:solarized_termcolors != 256 && &t_Co >= 16
+    let s:green       = "#859900"
+elseif g:solarized_termcolors && &t_Co >= 16
     let s:vmode       = "cterm"
     let s:base03      = "8"
     let s:base02      = "0"
@@ -298,43 +339,9 @@ elseif g:solarized_termcolors != 256 && &t_Co >= 16
     let s:blue        = "4"
     let s:cyan        = "6"
     let s:green       = "2"
-elseif g:solarized_termcolors == 256
-    let s:vmode       = "cterm"
-    let s:base03      = "234"
-    let s:base02      = "235"
-    let s:base01      = "239"
-    let s:base00      = "240"
-    let s:base0       = "244"
-    let s:base1       = "245"
-    let s:base2       = "187"
-    let s:base3       = "230"
-    let s:yellow      = "136"
-    let s:orange      = "166"
-    let s:red         = "124"
-    let s:magenta     = "125"
-    let s:violet      = "61"
-    let s:blue        = "33"
-    let s:cyan        = "37"
-    let s:green       = "64"
-else
+  else " Use 8-bit fallback mode, requiring "display bold as bright" setting
     let s:vmode       = "cterm"
     let s:bright      = "* term=bold cterm=bold"
-"   let s:base03      = "0".s:bright
-"   let s:base02      = "0"
-"   let s:base01      = "2".s:bright
-"   let s:base00      = "3".s:bright
-"   let s:base0       = "4".s:bright
-"   let s:base1       = "6".s:bright
-"   let s:base2       = "7"
-"   let s:base3       = "7".s:bright
-"   let s:yellow      = "3"
-"   let s:orange      = "1".s:bright
-"   let s:red         = "1"
-"   let s:magenta     = "5"
-"   let s:violet      = "5".s:bright
-"   let s:blue        = "4"
-"   let s:cyan        = "6"
-"   let s:green       = "2"
     let s:base03      = "DarkGray"      " 0*
     let s:base02      = "Black"         " 0
     let s:base01      = "LightGreen"    " 2*
@@ -411,11 +418,16 @@ endif
 "}}}
 " Overrides dependent on user specified values and environment "{{{
 " ---------------------------------------------------------------------
-if (g:solarized_bold == 0 || &t_Co == 8 )
+if (g:solarized_bold == 0)
+  let s:b             = ""
+else
+  let s:b             = ",bold"
+endif
+
+if ( &t_Co == 8 )
     let s:b           = ""
     let s:bb          = ",bold"
 else
-    let s:b           = ",bold"
     let s:bb          = ""
 endif
 
@@ -609,9 +621,18 @@ else
     exe "hi! SpecialKey" .s:fmt_bold   .s:fg_base00 .s:bg_base02
     exe "hi! NonText"    .s:fmt_bold   .s:fg_base00 .s:bg_none
 endif
-exe "hi! StatusLine"     .s:fmt_none   .s:fg_base1  .s:bg_base02 .s:fmt_revbb
-exe "hi! StatusLineNC"   .s:fmt_none   .s:fg_base00 .s:bg_base02 .s:fmt_revbb
-exe "hi! Visual"         .s:fmt_none   .s:fg_base01 .s:bg_base03 .s:fmt_revbb
+" exe "hi! StatusLine"     .s:fmt_none   .s:fg_base1  .s:bg_base02 .s:fmt_revbb " This is more universal but I prefer dark 
+exe "hi! StatusLine"     .s:fmt_none   .s:fg_base02 .s:bg_yellow .s:fmt_none
+exe "hi! StatusLineNC"   .s:fmt_none   .s:fg_base02 .s:bg_yellow .s:fmt_none
+
+" Fix issue with true color 
+if (s:vmode=="gui")
+exe "hi! Visual"         .s:fmt_none   .s:fg_none   .s:bg_base02 .' cterm=reverse'
+exe "hi! VisualNOS"      .s:fmt_stnd   .s:fg_none   .s:bg_base02 .' cterm=reverse' 
+else
+exe "hi! Visual"         .s:fmt_none   .s:fg_base01 .s:bg_base03 .s:fmt_revr
+exe "hi! VisualNOS"      .s:fmt_stnd   .s:fg_none   .s:bg_base02 .s:fmt_revbb
+endif
 exe "hi! Directory"      .s:fmt_none   .s:fg_blue   .s:bg_none
 exe "hi! ErrorMsg"       .s:fmt_revr   .s:fg_red    .s:bg_none
 exe "hi! IncSearch"      .s:fmt_stnd   .s:fg_orange .s:bg_none
@@ -621,14 +642,13 @@ exe "hi! ModeMsg"        .s:fmt_none   .s:fg_blue   .s:bg_none
 exe "hi! LineNr"         .s:fmt_none   .s:fg_base01 .s:bg_base02
 exe "hi! Question"       .s:fmt_bold   .s:fg_cyan   .s:bg_none
 if ( has("gui_running") || &t_Co > 8 )
-    exe "hi! VertSplit"  .s:fmt_none   .s:fg_base00 .s:bg_base00
+    exe "hi! VertSplit"  .s:fmt_none   .s:fg_base02 .s:bg_base02
 else
-    exe "hi! VertSplit"  .s:fmt_revbb  .s:fg_base00 .s:bg_base02
+    exe "hi! VertSplit"  .s:fmt_revbb  .s:fg_base02 .s:bg_base02
 endif
 exe "hi! Title"          .s:fmt_bold   .s:fg_orange .s:bg_none
-exe "hi! VisualNOS"      .s:fmt_stnd   .s:fg_none   .s:bg_base02 .s:fmt_revbb
 exe "hi! WarningMsg"     .s:fmt_bold   .s:fg_red    .s:bg_none
-exe "hi! WildMenu"       .s:fmt_none   .s:fg_base2  .s:bg_base02 .s:fmt_revbb
+exe "hi! WildMenu"       .s:fmt_none   .s:fg_base2  .s:bg_base02  .s:fmt_revbb
 exe "hi! Folded"         .s:fmt_undb   .s:fg_base0  .s:bg_base02  .s:sp_base03
 exe "hi! FoldColumn"     .s:fmt_none   .s:fg_base0  .s:bg_base02
 if      (g:solarized_diffmode=="high")
@@ -654,7 +674,7 @@ exe "hi! DiffDelete"     .s:fmt_none   .s:fg_red    .s:bg_base02
 exe "hi! DiffText"       .s:fmt_none   .s:fg_blue   .s:bg_base02 .s:sp_blue
     endif
 endif
-exe "hi! SignColumn"     .s:fmt_none   .s:fg_base0
+exe "hi! SignColumn"     .s:fmt_none   .s:fg_base0  .s:bg_base02
 exe "hi! Conceal"        .s:fmt_none   .s:fg_blue   .s:bg_none
 exe "hi! SpellBad"       .s:fmt_curl   .s:fg_none   .s:bg_none    .s:sp_red
 exe "hi! SpellCap"       .s:fmt_curl   .s:fg_none   .s:bg_none    .s:sp_violet
@@ -669,6 +689,7 @@ exe "hi! TabLineFill"    .s:fmt_undr   .s:fg_base0  .s:bg_base02  .s:sp_base0
 exe "hi! TabLineSel"     .s:fmt_undr   .s:fg_base01 .s:bg_base2   .s:sp_base0  .s:fmt_revbbu
 exe "hi! CursorColumn"   .s:fmt_none   .s:fg_none   .s:bg_base02
 exe "hi! CursorLine"     .s:fmt_uopt   .s:fg_none   .s:bg_base02  .s:sp_base1
+exe "hi! CursorLineNr"   .s:fmt_none   .s:fg_yellow  s:bg_base02  .s:sp_base1
 exe "hi! ColorColumn"    .s:fmt_none   .s:fg_none   .s:bg_base02
 exe "hi! Cursor"         .s:fmt_none   .s:fg_base03 .s:bg_base0
 hi! link lCursor Cursor
